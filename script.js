@@ -2,17 +2,54 @@ let fields = [
     null,
     null,
     null,
-    'circle',
     null,
-    'cross',
+    null,
+    null,
     null,
     null,
     null,
 ]
 
-function init(){
-    render()
+
+
+function init() {
+    render();
+    addClickHandlers();
 }
+
+function addClickHandlers() {
+    const cells = document.querySelectorAll("td");
+    cells.forEach((cell, index) => {
+        cell.setAttribute("onclick", `handleCellClick(${index})`);
+    });
+}
+
+function handleCellClick(index) {
+    const fieldValue = fields[index];
+    if (!fieldValue) {
+        fields[index] = isCrossTurn() ? "cross" : "circle";
+        renderSpecificCell(index);
+        disableCellClick(index);
+    }
+}
+
+function disableCellClick(index) {
+    const cell = document.querySelectorAll("td")[index];
+    cell.removeAttribute("onclick");
+}
+
+function renderSpecificCell(index) {
+    const cell = document.querySelectorAll("td")[index];
+    const fieldValue = fields[index];
+    cell.innerHTML = fieldValue === "cross" ? generateCrossSVG() : fieldValue === "circle" ? generateCircleSVG() : "";
+}
+
+function isCrossTurn() {
+    const crossCount = fields.filter(value => value === "cross").length;
+    const circleCount = fields.filter(value => value === "circle").length;
+    return crossCount === circleCount;
+}
+
 
 
 function render() {
@@ -32,6 +69,7 @@ function render() {
     tableHtml += '</table>';
     
     contentDiv.innerHTML = tableHtml;
+    
 }
 
 function generateCircleSVG() {
