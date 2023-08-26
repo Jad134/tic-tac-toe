@@ -25,12 +25,39 @@ function addClickHandlers() {
 }
 
 function handleCellClick(index) {
+    const GameisOver = checkWinner();
+
+    if (GameisOver) {
+        // Falls ein Gewinner ermittelt wurde, breche die Funktion einfach ab
+        return;
+    }
+    
     const fieldValue = fields[index];
     if (!fieldValue) {
         fields[index] = isCrossTurn() ? "cross" : "circle";
         renderSpecificCell(index);
         disableCellClick(index);
+
     }
+    const winner = checkWinner();
+    let winnerscreen = document.getElementById('winner-screen');
+    let restartContainer = document.getElementById('restart-container')
+    if (winner) {
+        winnerscreen.innerHTML += /*html*/`
+            
+    <div id="winnerIs"><h1 style="color: red;">${winner} wins!</h1></div> `;
+        console.log(`${winner} wins!`);
+
+        restartContainer.innerHTML += /*html*/`
+            <button onclick="restartGame()" id="restart-btn">Restart Game</button>`;
+    }
+    if (areAllCellsClicked()){
+        setTimeout(restartGame, 2000);
+    }
+}
+
+function areAllCellsClicked() {
+    return fields.every(field => field !== null);
 }
 
 function disableCellClick(index) {
@@ -51,10 +78,28 @@ function isCrossTurn() {
 }
 
 
+function checkWinner() {
+    const winningCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontal
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertikal
+        [0, 4, 8], [2, 4, 6] // Diagonal
+    ];
+
+    for (const combination of winningCombinations) {
+        const [a, b, c] = combination;
+        if (fields[a] && fields[a] === fields[b] && fields[a] === fields[c]) {
+            return fields[a]; // Return the winning player (cross or circle)
+        }
+    }
+    
+
+    return null; // No winner yet
+}
+
 
 function render() {
     const contentDiv = document.getElementById("content");
-    
+
     let tableHtml = '<table>';
     let cellIndex = 0;
     for (let i = 0; i < 3; i++) {
@@ -67,9 +112,9 @@ function render() {
         tableHtml += '</tr>';
     }
     tableHtml += '</table>';
-    
+
     contentDiv.innerHTML = tableHtml;
-    
+
 }
 
 function generateCircleSVG() {
@@ -101,6 +146,33 @@ function generateCrossSVG() {
     `;
     return svgCode;
 }
+
+function restartGame() {
+    
+        // Setze alle Spielfelder zurück
+        fields = [
+            null, null, null,
+            null, null, null,
+            null, null, null
+        ];
+    
+        // Leere den Inhalt des Gewinner-Bildschirms
+        let winnerscreen = document.getElementById('winner-screen');
+        winnerscreen.innerHTML = '';
+    
+        // Leere den Inhalt des Restart-Containers
+        let restartContainer = document.getElementById('restart-container');
+        restartContainer.innerHTML = '';
+    
+        // Rendere das Spielfeld neu
+        render();
+    
+        // Füge Klick-Handler wieder hinzu
+        addClickHandlers();
+    }
+
+   
+
 
 
 
